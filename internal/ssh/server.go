@@ -7,13 +7,14 @@ import (
 	"github.com/charmbracelet/wish/bubbletea"
 	"github.com/charmbracelet/wish/logging"
 
+	"mono/env"
 	"mono/internal/tui"
 )
 
 func NewServer() (*ssh.Server, error) {
 	return wish.NewServer(
-		wish.WithAddress(":2222"),
-		wish.WithHostKeyPath(".ssh/mono_ed25519"),
+		wish.WithAddress(":" + env.PORT.GetValue()),
+		wish.WithHostKeyPath(env.HOST_KEY_PATH.GetValue()),
 		wish.WithMiddleware(
 			logging.Middleware(),
 			bubbletea.Middleware(func(s ssh.Session) (tea.Model, []tea.ProgramOption) {

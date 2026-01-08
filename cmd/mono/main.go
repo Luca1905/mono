@@ -8,6 +8,7 @@ import (
 	"os/signal"
 	"syscall"
 
+	"mono/env"
 	"mono/internal/app"
 )
 
@@ -15,6 +16,12 @@ func main() {
 	// Parse flags
 	localMode := flag.Bool("local", false, "Run TUI locally without SSH server")
 	flag.Parse()
+
+	// Env loading
+	err := env.Load()
+  if err != nil {
+    log.Fatal("Error loading .env file")
+  }
 
 	// Handle graceful shutdown
 	ctx, stop := signal.NotifyContext(
