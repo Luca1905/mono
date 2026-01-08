@@ -26,7 +26,7 @@ func (m Model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			return m, tea.Quit
 
 		case tea.KeyEnter:
-			m.handleCommand(m.input.View())
+			m.handleCommand(m.input.Value())
 			m.input.Reset()
 		}
 	}
