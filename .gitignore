@@ -1,3 +1,5 @@
 .env
 .ssh/
+main
+tmp/
 
