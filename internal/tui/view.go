@@ -5,14 +5,13 @@ import "strings"
 func (m Model) View() string {
 	var b strings.Builder
 
-	for _, line := range m.history {
-		b.WriteString(line)
-		b.WriteRune('\n')
-	}
-
+	b.WriteString("What is your question?")
 	b.WriteRune('\n')
-	b.WriteString("> ")
-	b.WriteString(m.input)
+
+	b.WriteString(m.input.View())
+	b.WriteRune('\n')
+
+	b.WriteString(m.response)
 
 	return b.String()
 }
