@@ -9,6 +9,7 @@
 		"check:unsafe": "biome check --write --unsafe .",
 		"check:write": "biome check --write .",
 		"prepare": "husky",
+		"test": "vitest",
 		"typecheck": "tsc --noEmit"
 	},
 	"devDependencies": {
@@ -16,7 +17,8 @@
 		"@types/bun": "latest",
 		"concurrently": "9.2.1",
 		"husky": "^9.1.7",
-		"lint-staged": "16.4.0"
+		"lint-staged": "16.4.0",
+		"vitest": "^4.1.4"
 	},
 	"peerDependencies": {
 		"typescript": "^5"
