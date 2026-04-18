@@ -1,31 +1,32 @@
 {
-	"name": "mono",
-	"module": "src/index.tsx",
-	"type": "module",
-	"private": true,
-	"scripts": {
-		"check": "biome check .",
-		"dev": "bun run --watch src/index.tsx",
-		"check:unsafe": "biome check --write --unsafe .",
-		"check:write": "biome check --write .",
-		"prepare": "husky",
-		"test": "vitest",
-		"typecheck": "tsc --noEmit"
-	},
-	"devDependencies": {
-		"@biomejs/biome": "2.4.12",
-		"@types/bun": "latest",
-		"concurrently": "9.2.1",
-		"husky": "^9.1.7",
-		"lint-staged": "16.4.0",
-		"vitest": "^4.1.4"
-	},
-	"peerDependencies": {
-		"typescript": "^5"
-	},
-	"dependencies": {
-		"@opentui/core": "^0.1.99",
-		"@opentui/react": "^0.1.99",
-		"react": "^19.2.4"
-	}
+  "name": "mono",
+  "module": "src/index.tsx",
+  "description": "An TUI encyclopedia where every word is a link.",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "check": "biome check .",
+    "dev": "bun run --watch src/index.tsx",
+    "check:unsafe": "biome check --write --unsafe .",
+    "check:write": "biome check --write .",
+    "prepare": "husky",
+    "test": "vitest",
+    "typecheck": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "2.4.12",
+    "@types/bun": "latest",
+    "concurrently": "9.2.1",
+    "husky": "^9.1.7",
+    "lint-staged": "16.4.0",
+    "vitest": "^4.1.4"
+  },
+  "peerDependencies": {
+    "typescript": "^5"
+  },
+  "dependencies": {
+    "@opentui/core": "^0.1.99",
+    "@opentui/react": "^0.1.99",
+    "react": "^19.2.4"
+  }
 }
