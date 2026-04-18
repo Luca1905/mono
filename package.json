@@ -1,7 +1,7 @@
 {
   "name": "mono",
   "module": "src/index.tsx",
-  "description": "An TUI encyclopedia where every word is a link.",
+  "description": "A TUI encyclopedia where every word is a link.",
   "type": "module",
   "private": true,
   "scripts": {

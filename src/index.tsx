@@ -1,6 +1,7 @@
 import { ConsolePosition, createCliRenderer } from "@opentui/core";
 import { createRoot } from "@opentui/react";
 import { useState } from "react";
+import { sendTopicToAiWithStreaming } from "./ai";
 
 const FALLBACK_ARTICLE =
   "Mono is a word element and standalone term with several related meanings centered on the idea of “one” or “single.” It comes from the Greek word monos, meaning “alone” or “single,” and appears in many English words such as monologue, monochrome, and monorail. ";
@@ -16,8 +17,17 @@ const drawBox = (topic: string) => {
 };
 
 function App() {
-  const [article] = useState(FALLBACK_ARTICLE);
-  const [searchInput, setSearchInput] = useState("");
+  const [article, setArticle] = useState(FALLBACK_ARTICLE);
+  const [topic, setTopic] = useState("mono");
+
+  const onSubmit = async (input: string) => {
+    setArticle(""); // make a loading state /spinner etc.
+    setTopic(input);
+    const textStream = await sendTopicToAiWithStreaming(input);
+    for await (const delta of textStream) {
+      setArticle((prev) => prev + delta);
+    }
+  };
 
   return (
     <box
@@ -46,15 +56,15 @@ function App() {
         >
           <box flexGrow={1}>
             <input
-              value={searchInput}
+              value={topic}
               placeholder="start typing to search"
               textColor="#000000"
               onKeyDown={(key) => {
                 if (key.name === "escape") {
-                  setSearchInput("");
+                  setTopic("");
                 }
               }}
-              onSubmit={(submitEvent) => setSearchInput(submitEvent as string)}
+              onSubmit={(submitEvent) => onSubmit(submitEvent as string)}
               cursorColor="#888888"
               showCursor
               focused
@@ -75,7 +85,7 @@ function App() {
 
         <box width="100%" maxWidth={72} flexDirection="column" gap={1}>
           <box marginTop={1}>
-            <text fg="#888888">{drawBox("mono")}</text>
+            <text fg="#888888">{drawBox(topic)}</text>
           </box>
           <text fg="#000000">{article}</text>
         </box>
