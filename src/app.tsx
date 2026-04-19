@@ -5,21 +5,7 @@ import { MODEL, streamArticleForTopic, streamAsciiArtForTopic } from "./ai";
 const FALLBACK_ARTICLE =
   "Mono is a word element and standalone term with several related meanings centered on the idea of “one” or “single.” It comes from the Greek word monos, meaning “alone” or “single,” and appears in many English words such as monologue, monochrome, and monorail. ";
 
-const FALLBACK_ASCII_ART = `┌─────────────────────────────┐
-│█┌─────────────────────────┐█│
-│█│▓┌─────────────────────┐▓│█│
-│█│▓│▒┌─────────────────┐▒│▓│█│
-│█│▓│▒│░┌─────────────┐░│▒│▓│█│
-│█│▓│▒│░│ ┌─────────┐ │░│▒│▓│█│
-│█│▓│▒│░│ │ ┌─────┐ │ │░│▒│▓│█│
-│█│▓│▒│░│ │ │ ┌─■ │ │ │░│▒│▓│█│
-│█│▓│▒│░│ │ │ └───┘ │ │░│▒│▓│█│
-│█│▓│▒│░│ │ └───────┘ │░│▒│▓│█│
-│█│▓│▒│░│ └───────────┘░│▒│▓│█│
-│█│▓│▒│░└───────────────┘▒│▓│█│
-│█│▓│▒└───────────────────┘▓│█│
-│█│▓└───────────────────────┘█│
-■█└───────────────────────────┘`;
+const FALLBACK_ASCII_ART = `┌─────────────────────────────┐\n│█┌─────────────────────────┐█│\n│█│▓┌─────────────────────┐▓│█│\n│█│▓│▒┌─────────────────┐▒│▓│█│\n│█│▓│▒│░┌─────────────┐░│▒│▓│█│\n│█│▓│▒│░│ ┌─────────┐ │░│▒│▓│█│\n│█│▓│▒│░│ │ ┌─────┐ │ │░│▒│▓│█│\n│█│▓│▒│░│ │ │ ┌─■ │ │ │░│▒│▓│█│\n│█│▓│▒│░│ │ │ └───┘ │ │░│▒│▓│█│\n│█│▓│▒│░│ │ └───────┘ │░│▒│▓│█│\n│█│▓│▒│░│ └───────────┘░│▒│▓│█│\n│█│▓│▒│░└───────────────┘▒│▓│█│\n│█│▓│▒└───────────────────┘▓│█│\n│█│▓└───────────────────────┘█│\n■█└───────────────────────────┘`;
 
 const drawBox = (str: string) => {
   const lines = str.split(/\r?\n/);
@@ -38,7 +24,7 @@ const drawBox = (str: string) => {
 export default function App() {
   const [article, setArticle] = useState(FALLBACK_ARTICLE);
   const [topic, setTopic] = useState("mono");
-  const [asciiArt, setAsciiArt] = useState(drawBox(FALLBACK_ASCII_ART));
+  const [asciiArt, setAsciiArt] = useState(FALLBACK_ASCII_ART);
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -55,7 +41,7 @@ export default function App() {
     if (process.env.TESTING) {
       setTopic(submission);
       setArticle(FALLBACK_ARTICLE);
-      setAsciiArt(drawBox(FALLBACK_ASCII_ART));
+      setAsciiArt(FALLBACK_ASCII_ART);
       return;
     }
     setIsLoading(true);
@@ -72,25 +58,27 @@ export default function App() {
     setError(null);
     setArticle("");
     setTopic(parsedSubmission);
+    setAsciiArt("");
 
-    try {
-      const asciiArtStream = await streamAsciiArtForTopic(parsedSubmission);
-      let asciiArtResult = "";
-      for await (const delta of asciiArtStream) {
-        if (!isMounted.current || requestId !== latestRequestId.current) {
-          break;
-        }
-        asciiArtResult += delta;
+    const consumeAsciiArtStream = async () => {
+      const result = await streamAsciiArtForTopic(parsedSubmission);
+      if (!isMounted.current || requestId !== latestRequestId.current) {
+        return;
       }
-      setAsciiArt(asciiArtResult || drawBox(parsedSubmission));
+      setAsciiArt(result);
+    };
 
-      const textStream = await streamArticleForTopic(parsedSubmission);
-      for await (const delta of textStream) {
+    const consumeArticleStream = async () => {
+      for await (const delta of streamArticleForTopic(parsedSubmission)) {
         if (!isMounted.current || requestId !== latestRequestId.current) {
           break;
         }
         setArticle((prev) => prev + delta);
       }
+    };
+
+    try {
+      await Promise.all([consumeAsciiArtStream(), consumeArticleStream()]);
     } catch (error) {
       if (!isMounted.current || requestId !== latestRequestId.current) {
         return;
@@ -156,17 +144,25 @@ export default function App() {
           justifyContent="center"
         >
           <box flexShrink={0}>
-            <text fg="#888888">{asciiArt}</text>
+            <text fg="#888888">
+              {isLoading ? drawBox("Loading...") : drawBox(asciiArt)}
+            </text>
           </box>
 
-          <box flexGrow={1} flexShrink={1} minWidth={0} maxWidth={48}>
+          <box flexGrow={1} flexShrink={1} minWidth="30%" maxWidth="50%">
             <box
-              width="100%"
               flexDirection="column"
               alignItems="flex-start"
               marginBottom={2}
+              flexGrow={1}
+              flexShrink={1}
             >
-              <ascii-font text={topic} font="block" color="#000000" />
+              <ascii-font
+                text={topic}
+                font="block"
+                color="#000000"
+                flexShrink={1}
+              />
             </box>
             {isLoading ? <text fg="#888888">Generating...</text> : null}
             {error ? <text fg="#FF0000">Error: {error}</text> : null}
