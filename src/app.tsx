@@ -1,25 +1,12 @@
 import { useEffect, useRef, useState } from "react";
 import z from "zod";
 import { MODEL, streamArticleForTopic, streamAsciiArtForTopic } from "./ai";
+import "opentui-spinner/react";
 
 const FALLBACK_ARTICLE =
   "Mono is a word element and standalone term with several related meanings centered on the idea of “one” or “single.” It comes from the Greek word monos, meaning “alone” or “single,” and appears in many English words such as monologue, monochrome, and monorail. ";
 
 const FALLBACK_ASCII_ART = `┌─────────────────────────────┐\n│█┌─────────────────────────┐█│\n│█│▓┌─────────────────────┐▓│█│\n│█│▓│▒┌─────────────────┐▒│▓│█│\n│█│▓│▒│░┌─────────────┐░│▒│▓│█│\n│█│▓│▒│░│ ┌─────────┐ │░│▒│▓│█│\n│█│▓│▒│░│ │ ┌─────┐ │ │░│▒│▓│█│\n│█│▓│▒│░│ │ │ ┌─■ │ │ │░│▒│▓│█│\n│█│▓│▒│░│ │ │ └───┘ │ │░│▒│▓│█│\n│█│▓│▒│░│ │ └───────┘ │░│▒│▓│█│\n│█│▓│▒│░│ └───────────┘░│▒│▓│█│\n│█│▓│▒│░└───────────────┘▒│▓│█│\n│█│▓│▒└───────────────────┘▓│█│\n│█│▓└───────────────────────┘█│\n■█└───────────────────────────┘`;
-
-const drawBox = (str: string) => {
-  const lines = str.split(/\r?\n/);
-  const maxWidth = lines.reduce(
-    (width, line) => Math.max(width, line.length),
-    0,
-  );
-  const horizontal = "-".repeat(maxWidth + 2);
-  const top = `+${horizontal}+`;
-  const bottom = top;
-  const middle = lines.map((line) => `| ${line.padEnd(maxWidth, " ")} |`);
-
-  return [top, ...middle, bottom].join("\n");
-};
 
 export default function App() {
   const [article, setArticle] = useState(FALLBACK_ARTICLE);
@@ -38,13 +25,17 @@ export default function App() {
   }, []);
 
   const onSubmit = async (submission: string) => {
+    setIsLoading(true);
+
     if (process.env.TESTING) {
       setTopic(submission);
       setArticle(FALLBACK_ARTICLE);
       setAsciiArt(FALLBACK_ASCII_ART);
+      setTimeout(() => {
+        setIsLoading(false);
+      }, 1000);
       return;
     }
-    setIsLoading(true);
 
     const Submission = z
       .string()
@@ -58,7 +49,6 @@ export default function App() {
     setError(null);
     setArticle("");
     setTopic(parsedSubmission);
-    setAsciiArt("");
 
     const consumeAsciiArtStream = async () => {
       const result = await streamAsciiArtForTopic(parsedSubmission);
@@ -143,9 +133,29 @@ export default function App() {
           alignItems="flex-start"
           justifyContent="center"
         >
-          <box flexShrink={0}>
-            <text fg="#888888">
-              {isLoading ? drawBox("Loading...") : drawBox(asciiArt)}
+          <box
+            flexShrink={0}
+            border
+            borderColor="#888888"
+            borderStyle="double"
+            alignItems="center"
+            justifyContent="center"
+            flexDirection="row"
+          >
+            {isLoading && (
+              <box
+                backgroundColor="#FFFFFF"
+                zIndex={1}
+                position="absolute"
+                flexDirection="row"
+                alignItems="center"
+                padding={1}
+              >
+                <spinner name="bouncingBall" color="grey" />
+              </box>
+            )}
+            <text zIndex={0} fg={isLoading ? "#ffffff" : "#888888"}>
+              {asciiArt}
             </text>
           </box>
 

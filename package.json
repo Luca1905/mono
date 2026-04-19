@@ -26,9 +26,10 @@
   },
   "dependencies": {
     "@ai-sdk/google": "^3.0.64",
-    "@opentui/core": "^0.1.99",
-    "@opentui/react": "^0.1.99",
-    "react": "^19.2.4",
+    "@opentui/core": "^0.1.100",
+    "@opentui/react": "^0.1.100",
+    "opentui-spinner": "^0.0.6",
+    "react": "^19.2.5",
     "zod": "^4.3.6"
   }
 }
