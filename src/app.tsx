@@ -13,7 +13,10 @@ export default function App() {
   const [topic, setTopic] = useState("mono");
   const [asciiArt, setAsciiArt] = useState(FALLBACK_ASCII_ART);
   const [input, setInput] = useState("");
-  const [isLoading, setIsLoading] = useState(false);
+
+  const [isArticleLoading, setIsArticleLoading] = useState(false);
+  const [isAsciiArtLoading, setIsAsciiArtLoading] = useState(false);
+  const isLoading = isArticleLoading || isAsciiArtLoading;
   const [error, setError] = useState<string | null>(null);
   const latestRequestId = useRef(0);
   const isMounted = useRef(true);
@@ -25,14 +28,16 @@ export default function App() {
   }, []);
 
   const onSubmit = async (submission: string) => {
-    setIsLoading(true);
+    setIsArticleLoading(true);
+    setIsAsciiArtLoading(true);
 
     if (process.env.TESTING) {
       setTopic(submission);
       setArticle(FALLBACK_ARTICLE);
       setAsciiArt(FALLBACK_ASCII_ART);
       setTimeout(() => {
-        setIsLoading(false);
+        setIsArticleLoading(false);
+        setIsAsciiArtLoading(false);
       }, 1000);
       return;
     }
@@ -55,6 +60,7 @@ export default function App() {
       if (!isMounted.current || requestId !== latestRequestId.current) {
         return;
       }
+      setIsAsciiArtLoading(false);
       setAsciiArt(result);
     };
 
@@ -65,6 +71,7 @@ export default function App() {
         }
         setArticle((prev) => prev + delta);
       }
+      setIsArticleLoading(false);
     };
 
     try {
@@ -79,7 +86,8 @@ export default function App() {
       setArticle(FALLBACK_ARTICLE);
     } finally {
       if (isMounted.current && requestId === latestRequestId.current) {
-        setIsLoading(false);
+        setIsArticleLoading(false);
+        setIsAsciiArtLoading(false);
       }
     }
   };
@@ -142,7 +150,7 @@ export default function App() {
             justifyContent="center"
             flexDirection="row"
           >
-            {isLoading && (
+            {isAsciiArtLoading && (
               <box
                 backgroundColor="#FFFFFF"
                 zIndex={1}
@@ -174,7 +182,7 @@ export default function App() {
                 flexShrink={1}
               />
             </box>
-            {isLoading ? <text fg="#888888">Generating...</text> : null}
+            {isArticleLoading ? <text fg="#888888">Generating...</text> : null}
             {error ? <text fg="#FF0000">Error: {error}</text> : null}
             <text selectionBg="#888888" selectable fg="#000000" flexShrink={1}>
               {article}
