@@ -2,6 +2,9 @@ import { useEffect, useRef, useState } from "react";
 import z from "zod";
 import { MODEL, streamArticleForTopic, streamAsciiArtForTopic } from "./ai";
 import "opentui-spinner/react";
+import { ArticlePanel } from "./components/article-panel";
+import { SearchBar } from "./components/search-bar";
+import { TopicArtPanel } from "./components/topic-art-panel";
 
 const FALLBACK_ARTICLE =
   "Mono is a word element and standalone term with several related meanings centered on the idea of “one” or “single.” It comes from the Greek word monos, meaning “alone” or “single,” and appears in many English words such as monologue, monochrome, and monorail. ";
@@ -107,32 +110,16 @@ export default function App() {
       flexGrow={1}
     >
       <box flexDirection="column" gap={2} flexGrow={1}>
-        <box flexDirection="row" justifyContent="space-between">
-          <box flexGrow={1}>
-            <input
-              value={input}
-              placeholder="Start typing to search"
-              textColor="#000000"
-              onKeyDown={(key) => {
-                if (key.name === "escape") {
-                  setInput("");
-                }
-              }}
-              onChange={setInput}
-              onSubmit={(submission) => {
-                if (typeof submission === "string") {
-                  void onSubmit(submission);
-                }
-              }}
-              cursorColor="#888888"
-              showCursor
-              focused
-            />
-          </box>
-          <text selectable={false} fg="#000000">
-            Random
-          </text>
-        </box>
+        <SearchBar
+          input={input}
+          onChange={setInput}
+          onClear={() => setInput("")}
+          onSubmit={(submission) => {
+            if (typeof submission === "string") {
+              void onSubmit(submission);
+            }
+          }}
+        />
 
         <box
           width="100%"
@@ -141,53 +128,17 @@ export default function App() {
           alignItems="flex-start"
           justifyContent="center"
         >
-          <box
-            flexShrink={0}
-            border
-            borderColor="#888888"
-            borderStyle="double"
-            alignItems="center"
-            justifyContent="center"
-            flexDirection="row"
-          >
-            {isAsciiArtLoading && (
-              <box
-                backgroundColor="#FFFFFF"
-                zIndex={1}
-                position="absolute"
-                flexDirection="row"
-                alignItems="center"
-                padding={1}
-              >
-                <spinner name="bouncingBall" color="grey" />
-              </box>
-            )}
-            <text zIndex={0} fg={isLoading ? "#ffffff" : "#888888"}>
-              {asciiArt}
-            </text>
-          </box>
-
-          <box flexGrow={1} flexShrink={1} minWidth="30%" maxWidth="50%">
-            <box
-              flexDirection="column"
-              alignItems="flex-start"
-              marginBottom={2}
-              flexGrow={1}
-              flexShrink={1}
-            >
-              <ascii-font
-                text={topic}
-                font="block"
-                color="#000000"
-                flexShrink={1}
-              />
-            </box>
-            {isArticleLoading ? <text fg="#888888">Generating...</text> : null}
-            {error ? <text fg="#FF0000">Error: {error}</text> : null}
-            <text selectionBg="#888888" selectable fg="#000000" flexShrink={1}>
-              {article}
-            </text>
-          </box>
+          <TopicArtPanel
+            asciiArt={asciiArt}
+            isAsciiArtLoading={isAsciiArtLoading}
+            isLoading={isLoading}
+          />
+          <ArticlePanel
+            article={article}
+            error={error}
+            isArticleLoading={isArticleLoading}
+            topic={topic}
+          />
         </box>
       </box>
     </box>
