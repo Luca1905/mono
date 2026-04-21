@@ -16,8 +16,12 @@ export default function App() {
   const [topic, setTopic] = useState("mono");
   const [asciiArt, setAsciiArt] = useState(FALLBACK_ASCII_ART);
   const [input, setInput] = useState("");
+  const [selectedWordIndex, setSelectedWordIndex] = useState<number | null>(
+    null,
+  );
 
   const [isArticleLoading, setIsArticleLoading] = useState(false);
+  const [isArticleStreaming, setIsArticleStreaming] = useState(false);
   const [isAsciiArtLoading, setIsAsciiArtLoading] = useState(false);
   const isLoading = isArticleLoading || isAsciiArtLoading;
   const [error, setError] = useState<string | null>(null);
@@ -68,13 +72,15 @@ export default function App() {
     };
 
     const consumeArticleStream = async () => {
+      setIsArticleStreaming(true);
       for await (const delta of streamArticleForTopic(parsedSubmission)) {
+        setIsArticleLoading(false);
         if (!isMounted.current || requestId !== latestRequestId.current) {
           break;
         }
         setArticle((prev) => prev + delta);
       }
-      setIsArticleLoading(false);
+      setIsArticleStreaming(false);
     };
 
     try {
@@ -137,7 +143,9 @@ export default function App() {
             article={article}
             error={error}
             isArticleLoading={isArticleLoading}
+            isArticleStreaming={isArticleStreaming}
             topic={topic}
+            selectedWordIndex={selectedWordIndex}
           />
         </box>
       </box>
