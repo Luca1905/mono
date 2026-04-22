@@ -2,7 +2,7 @@ import { ConsolePosition, createCliRenderer } from "@opentui/core";
 import { createRoot } from "@opentui/react";
 import App from "./app";
 
-const renderer = await createCliRenderer({
+export const renderer = await createCliRenderer({
   openConsoleOnError: true,
   backgroundColor: "#ffffff",
   consoleOptions: {
@@ -13,18 +13,6 @@ const renderer = await createCliRenderer({
     colorError: "#FF0000", // Color for console.error
     startInDebugMode: false, // Show file/line info in logs
   },
-});
-
-renderer.keyInput.on("keypress", (key) => {
-  // Toggle with backtick key
-  if (key.name === "`") {
-    renderer.console.toggle();
-  }
-
-  // Or with a modifier
-  if (key.ctrl && key.name === "l") {
-    renderer.console.toggle();
-  }
 });
 
 createRoot(renderer).render(<App />);

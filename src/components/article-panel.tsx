@@ -6,42 +6,44 @@ type ArticlePanelProps = {
   error: string | null;
   isArticleLoading: boolean;
   isArticleStreaming: boolean;
-  selectedWordIndex: number | null;
+  selectedWordIndex: number;
   topic: string;
 };
 
 const WORD_TOKEN_REGEX = /\S+\s*/g;
 
-function renderSelectableWords(
-  article: string,
-  selectedWordIndex: number | null,
-) {
+function renderSelectableWords(article: string, selectedWordIndex: number) {
+  console.log(selectedWordIndex);
   const words = Array.from(
     article.matchAll(WORD_TOKEN_REGEX),
     (match) => match[0],
   );
-  console.log(words);
 
-  return words.map((word, index) =>
-    selectedWordIndex === index ? (
+  return words.map((word, index) => {
+    const idx =
+      selectedWordIndex < 0
+        ? words.length + selectedWordIndex
+        : selectedWordIndex;
+    return idx % words.length === index ? (
       <>
         <text
           key={randomUUIDv7()}
           fg="#000000"
           bg="#cccccc"
-          flexShrink={0}
           attributes={TextAttributes.UNDERLINE}
         >
           {word.slice(0, -1)}
         </text>
-        <text> </text>
+        <text key={randomUUIDv7()} fg="#000000">
+          {" "}
+        </text>
       </>
     ) : (
-      <text key={randomUUIDv7()} fg="#000000" flexShrink={0}>
+      <text key={randomUUIDv7()} fg="#000000">
         {word}
       </text>
-    ),
-  );
+    );
+  });
 }
 
 export function ArticlePanel({

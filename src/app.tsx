@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import z from "zod";
 import { MODEL, streamArticleForTopic, streamAsciiArtForTopic } from "./ai";
 import "opentui-spinner/react";
+import { renderer } from ".";
 import { ArticlePanel } from "./components/article-panel";
 import { SearchBar } from "./components/search-bar";
 import { TopicArtPanel } from "./components/topic-art-panel";
@@ -16,9 +17,9 @@ export default function App() {
   const [topic, setTopic] = useState("mono");
   const [asciiArt, setAsciiArt] = useState(FALLBACK_ASCII_ART);
   const [input, setInput] = useState("");
-  const [selectedWordIndex, setSelectedWordIndex] = useState<number | null>(
-    null,
-  );
+  const [selectedWordIndex, setSelectedWordIndex] = useState<number>(0);
+  const articleRef = useRef(article);
+  const selectedWordIndexRef = useRef(selectedWordIndex);
 
   const [isArticleLoading, setIsArticleLoading] = useState(false);
   const [isArticleStreaming, setIsArticleStreaming] = useState(false);
@@ -29,6 +30,54 @@ export default function App() {
   const isMounted = useRef(true);
 
   useEffect(() => {
+    articleRef.current = article;
+  }, [article]);
+
+  useEffect(() => {
+    selectedWordIndexRef.current = selectedWordIndex;
+  }, [selectedWordIndex]);
+
+  useEffect(() => {
+    renderer.keyInput.on("keypress", (key) => {
+      // Toggle with backtick key
+      if (key.name === "`") {
+        renderer.console.toggle();
+      }
+
+      // Or with a modifier
+      if (key.ctrl && key.name === "l") {
+        renderer.console.toggle();
+      }
+
+      if (key.shift && key.name === "tab") {
+        setSelectedWordIndex((prev) => {
+          return prev - 1;
+        });
+      } else if (key.name === "tab") {
+        setSelectedWordIndex((prev) => {
+          return prev + 1;
+        });
+      }
+
+      if (key.name === "enter" || key.name === "return") {
+        const words = Array.from(
+          articleRef.current.matchAll(/\S+\s*/g),
+          (match) => match[0],
+        );
+        if (words.length === 0) {
+          return;
+        }
+
+        const normalizedSelectedWordIndex =
+          ((selectedWordIndexRef.current % words.length) + words.length) %
+          words.length;
+        const selectedWord = words[normalizedSelectedWordIndex]?.trim();
+
+        if (selectedWord) {
+          void onSubmit(selectedWord);
+        }
+      }
+    });
     return () => {
       isMounted.current = false;
     };

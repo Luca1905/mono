@@ -31,7 +31,7 @@ export function SearchBar({
           }}
           cursorColor="#888888"
           showCursor
-          focused
+          focused={false}
         />
       </box>
       <text selectable={false} fg="#000000">
