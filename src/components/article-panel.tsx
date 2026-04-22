@@ -1,5 +1,6 @@
 import { TextAttributes } from "@opentui/core";
 import { randomUUIDv7 } from "bun";
+import { BlinkingBox } from "./blinking-box";
 
 type ArticlePanelProps = {
   article: string;
@@ -7,6 +8,7 @@ type ArticlePanelProps = {
   isArticleLoading: boolean;
   isArticleStreaming: boolean;
   selectedWordIndex: number;
+  focused: boolean;
   topic: string;
 };
 
@@ -53,9 +55,20 @@ export function ArticlePanel({
   isArticleStreaming,
   topic,
   selectedWordIndex,
+  focused,
 }: ArticlePanelProps) {
   return (
-    <box flexGrow={1} flexShrink={1} minWidth="30%" maxWidth="50%">
+    <BlinkingBox
+      flexShrink={1}
+      flexGrow={1}
+      minWidth="30%"
+      maxWidth="50%"
+      focusable
+      focused={focused}
+      pulseDurationMs={500}
+      baseIntensity={0}
+      peakIntensity={255}
+    >
       <box
         flexDirection="column"
         alignItems="flex-start"
@@ -76,6 +89,6 @@ export function ArticlePanel({
           {renderSelectableWords(article, selectedWordIndex)}
         </box>
       ) : null}
-    </box>
+    </BlinkingBox>
   );
 }

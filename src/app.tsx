@@ -7,12 +7,15 @@ import { ArticlePanel } from "./components/article-panel";
 import { SearchBar } from "./components/search-bar";
 import { TopicArtPanel } from "./components/topic-art-panel";
 
+type focusableElement = {};
+
 const FALLBACK_ARTICLE =
   "Mono is a word element and standalone term with several related meanings centered on the idea of “one” or “single.” It comes from the Greek word monos, meaning “alone” or “single,” and appears in many English words such as monologue, monochrome, and monorail. ";
 
 const FALLBACK_ASCII_ART = `┌─────────────────────────────┐\n│█┌─────────────────────────┐█│\n│█│▓┌─────────────────────┐▓│█│\n│█│▓│▒┌─────────────────┐▒│▓│█│\n│█│▓│▒│░┌─────────────┐░│▒│▓│█│\n│█│▓│▒│░│ ┌─────────┐ │░│▒│▓│█│\n│█│▓│▒│░│ │ ┌─────┐ │ │░│▒│▓│█│\n│█│▓│▒│░│ │ │ ┌─■ │ │ │░│▒│▓│█│\n│█│▓│▒│░│ │ │ └───┘ │ │░│▒│▓│█│\n│█│▓│▒│░│ │ └───────┘ │░│▒│▓│█│\n│█│▓│▒│░│ └───────────┘░│▒│▓│█│\n│█│▓│▒│░└───────────────┘▒│▓│█│\n│█│▓│▒└───────────────────┘▓│█│\n│█│▓└───────────────────────┘█│\n■█└───────────────────────────┘`;
 
 export default function App() {
+  const [focused, setFocused] = useState(false);
   const [article, setArticle] = useState(FALLBACK_ARTICLE);
   const [topic, setTopic] = useState("mono");
   const [asciiArt, setAsciiArt] = useState(FALLBACK_ASCII_ART);
@@ -167,6 +170,7 @@ export default function App() {
       <box flexDirection="column" gap={2} flexGrow={1}>
         <SearchBar
           input={input}
+          focused={true}
           onChange={setInput}
           onClear={() => setInput("")}
           onSubmit={(submission) => {
@@ -187,6 +191,7 @@ export default function App() {
             asciiArt={asciiArt}
             isAsciiArtLoading={isAsciiArtLoading}
             isLoading={isLoading}
+            focused={true}
           />
           <ArticlePanel
             article={article}
@@ -195,6 +200,7 @@ export default function App() {
             isArticleStreaming={isArticleStreaming}
             topic={topic}
             selectedWordIndex={selectedWordIndex}
+            focused={true}
           />
         </box>
       </box>
