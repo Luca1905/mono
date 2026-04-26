@@ -6,7 +6,7 @@
   "private": true,
   "scripts": {
     "check": "biome check .",
-    "dev": "bun run --watch src/index.tsx",
+    "dev:tui": "bun run --watch src/index.tsx",
     "check:unsafe": "biome check --write --unsafe .",
     "check:write": "biome check --write .",
     "prepare": "husky",
@@ -28,8 +28,10 @@
     "@ai-sdk/google": "^3.0.64",
     "@opentui/core": "^0.1.100",
     "@opentui/react": "^0.1.100",
+    "@types/ssh2": "^1.15.5",
     "opentui-spinner": "^0.0.6",
     "react": "^19.2.5",
+    "ssh2": "^1.17.0",
     "zod": "^4.3.6"
   }
 }
