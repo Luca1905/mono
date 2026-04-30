@@ -19,7 +19,6 @@ export function TopicArtPanel({
       alignItems="center"
       justifyContent="center"
       flexDirection="row"
-      focusable
       focused={focused}
       pulseDurationMs={500}
       baseIntensity={0}

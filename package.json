@@ -6,7 +6,7 @@
   "private": true,
   "scripts": {
     "check": "biome check .",
-    "dev:tui": "bun run --watch src/index.tsx",
+    "dev:tui": "bun run --watch src/mono",
     "check:unsafe": "biome check --write --unsafe .",
     "check:write": "biome check --write .",
     "prepare": "husky",

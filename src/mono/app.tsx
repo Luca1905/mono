@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import z from "zod";
 import { MODEL, streamArticleForTopic, streamAsciiArtForTopic } from "./ai";
 import "opentui-spinner/react";
@@ -8,6 +8,144 @@ import { SearchBar } from "./components/search-bar";
 import { TopicArtPanel } from "./components/topic-art-panel";
 
 type focusableElement = {};
+
+const PREDEFINED_WORDS = [
+  "Balance",
+  "Harmony",
+  "Discord",
+  "Unity",
+  "Fragmentation",
+  "Clarity",
+  "Ambiguity",
+  "Presence",
+  "Absence",
+  "Creation",
+  "Destruction",
+  "Light",
+  "Shadow",
+  "Beginning",
+  "Ending",
+  "Rising",
+  "Falling",
+  "Connection",
+  "Isolation",
+  "Hope",
+  "Despair",
+  "Order and chaos",
+  "Light and shadow",
+  "Sound and silence",
+  "Form and formlessness",
+  "Being and nonbeing",
+  "Presence and absence",
+  "Motion and stillness",
+  "Unity and multiplicity",
+  "Finite and infinite",
+  "Sacred and profane",
+  "Memory and forgetting",
+  "Question and answer",
+  "Search and discovery",
+  "Journey and destination",
+  "Dream and reality",
+  "Time and eternity",
+  "Self and other",
+  "Known and unknown",
+  "Spoken and unspoken",
+  "Visible and invisible",
+  "Zigzag",
+  "Waves",
+  "Spiral",
+  "Bounce",
+  "Slant",
+  "Drip",
+  "Stretch",
+  "Squeeze",
+  "Float",
+  "Fall",
+  "Spin",
+  "Melt",
+  "Rise",
+  "Twist",
+  "Explode",
+  "Stack",
+  "Mirror",
+  "Echo",
+  "Vibrate",
+  "Gravity",
+  "Friction",
+  "Momentum",
+  "Inertia",
+  "Turbulence",
+  "Pressure",
+  "Tension",
+  "Oscillate",
+  "Fractal",
+  "Quantum",
+  "Entropy",
+  "Vortex",
+  "Resonance",
+  "Equilibrium",
+  "Centrifuge",
+  "Elastic",
+  "Viscous",
+  "Refract",
+  "Diffuse",
+  "Cascade",
+  "Levitate",
+  "Magnetize",
+  "Polarize",
+  "Accelerate",
+  "Compress",
+  "Undulate",
+  "Liminal",
+  "Ephemeral",
+  "Paradox",
+  "Zeitgeist",
+  "Metamorphosis",
+  "Synesthesia",
+  "Recursion",
+  "Emergence",
+  "Dialectic",
+  "Apophenia",
+  "Limbo",
+  "Flux",
+  "Sublime",
+  "Uncanny",
+  "Palimpsest",
+  "Chimera",
+  "Void",
+  "Transcend",
+  "Ineffable",
+  "Qualia",
+  "Gestalt",
+  "Simulacra",
+  "Abyssal",
+  "Existential",
+  "Nihilism",
+  "Solipsism",
+  "Phenomenology",
+  "Hermeneutics",
+  "Deconstruction",
+  "Postmodern",
+  "Absurdism",
+  "Catharsis",
+  "Epiphany",
+  "Melancholy",
+  "Nostalgia",
+  "Longing",
+  "Reverie",
+  "Pathos",
+  "Ethos",
+  "Logos",
+  "Mythos",
+  "Anamnesis",
+  "Intertextuality",
+  "Metafiction",
+  "Stream",
+  "Lacuna",
+  "Caesura",
+  "Enjambment",
+];
+const UNIQUE_WORDS = [...new Set(PREDEFINED_WORDS)];
 
 const FALLBACK_ARTICLE =
   "Mono is a word element and standalone term with several related meanings centered on the idea of “one” or “single.” It comes from the Greek word monos, meaning “alone” or “single,” and appears in many English words such as monologue, monochrome, and monorail. ";
@@ -47,9 +185,17 @@ export default function App() {
         renderer.console.toggle();
       }
 
+      if (key.name === "escape") {
+        setFocused((prev) => !prev);
+      }
+
       // Or with a modifier
       if (key.ctrl && key.name === "l") {
         renderer.console.toggle();
+      }
+
+      if (key.shift && key.name === "r") {
+        handleRandomTopic();
       }
 
       if (key.shift && key.name === "tab") {
@@ -153,6 +299,13 @@ export default function App() {
     }
   };
 
+  const handleRandomTopic = useCallback(() => {
+    const randomTopic =
+      UNIQUE_WORDS[Math.floor(Math.random() * UNIQUE_WORDS.length)];
+    setInput(randomTopic ?? "mono");
+    void onSubmit(randomTopic ?? "mono");
+  }, [topic]);
+
   return (
     <box
       width="100%"
@@ -172,7 +325,8 @@ export default function App() {
       <box flexDirection="column" gap={2} flexGrow={1}>
         <SearchBar
           input={input}
-          focused={true}
+          searchFocused={focused}
+          randomFocused={true}
           onChange={setInput}
           onClear={() => setInput("")}
           onSubmit={(submission) => {
@@ -193,7 +347,8 @@ export default function App() {
             asciiArt={asciiArt}
             isAsciiArtLoading={isAsciiArtLoading}
             isLoading={isLoading}
-            focused={true}
+            // hard coded value
+            focused={false}
           />
           <ArticlePanel
             article={article}
@@ -202,7 +357,7 @@ export default function App() {
             isArticleStreaming={isArticleStreaming}
             topic={topic}
             selectedWordIndex={selectedWordIndex}
-            focused={true}
+            focused={!focused}
           />
         </box>
       </box>

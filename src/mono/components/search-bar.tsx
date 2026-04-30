@@ -2,7 +2,8 @@ import { BlinkingBox } from "./blinking-box";
 
 type SearchBarProps = {
   input: string;
-  focused: boolean;
+  searchFocused: boolean;
+  randomFocused: boolean;
   onChange: (value: string) => void;
   onClear: () => void;
   onSubmit: (submission: string) => void;
@@ -10,7 +11,8 @@ type SearchBarProps = {
 
 export function SearchBar({
   input,
-  focused,
+  searchFocused,
+  randomFocused,
   onChange,
   onClear,
   onSubmit,
@@ -24,7 +26,7 @@ export function SearchBar({
     >
       <BlinkingBox
         focusable
-        focused={focused}
+        focused={searchFocused}
         pulseDurationMs={500}
         baseIntensity={0}
         peakIntensity={255}
@@ -50,13 +52,13 @@ export function SearchBar({
       </BlinkingBox>
       <BlinkingBox
         focusable
-        focused={focused}
+        focused={randomFocused}
         pulseDurationMs={500}
         baseIntensity={0}
         peakIntensity={255}
       >
         <text selectable={false} fg="#000000">
-          Random
+          Random (Shift + r)
         </text>
       </BlinkingBox>
     </box>
