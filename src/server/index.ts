@@ -1,72 +1,30 @@
-import { timingSafeEqual } from "node:crypto";
 import { readFileSync } from "node:fs";
 import { inspect } from "node:util";
-
 import { Server, utils } from "ssh2";
+import type { Server as ServerType } from "ssh2";
 
-const KEYS_PATH = {
-  private: new URL("../../.ssh/mono_ed25519", import.meta.url),
-  public: new URL("../../.ssh/lca_ed25519.pub", import.meta.url),
-};
-
-const allowedUser = Buffer.from("lca");
-const allowedPassword = Buffer.from("password123");
-const allowedPubKey = utils.parseKey(readFileSync(KEYS_PATH.public));
-
-function checkValue(input, allowed) {
-  const autoReject = input.length !== allowed.length;
-  if (autoReject) {
-    // Prevent leaking length information by always making a comparison with the
-    // same input when lengths don't match what we expect ...
-    allowed = input;
-  }
-  const isMatch = timingSafeEqual(input, allowed);
-  return !autoReject && isMatch;
-}
+const KEYS = utils.generateKeyPairSync("ed25519");
 
 new Server(
   {
-    hostKeys: [readFileSync(KEYS_PATH.private)],
+    banner: "mono knows all",
+    hostKeys: [KEYS.private],
   },
   (client) => {
     console.log("Client connected!");
 
     client
       .on("authentication", (ctx) => {
-        let allowed = true;
-        if (!checkValue(Buffer.from(ctx.username), allowedUser))
-          allowed = false;
-
-        switch (ctx.method) {
-          case "password":
-            if (!checkValue(Buffer.from(ctx.password), allowedPassword))
-              return ctx.reject();
-            break;
-          case "publickey":
-            if (
-              ctx.key.algo !== allowedPubKey.type ||
-              !checkValue(ctx.key.data, allowedPubKey.getPublicSSH()) ||
-              (ctx.signature &&
-                allowedPubKey.verify(ctx.blob, ctx.signature, ctx.hashAlgo) !==
-                  true)
-            ) {
-              return ctx.reject();
-            }
-            break;
-          default:
-            return ctx.reject();
-        }
-
-        if (allowed) ctx.accept();
-        else ctx.reject();
+        // console.log(ctx);
+        ctx.accept();
       })
       .on("ready", () => {
         console.log("Client authenticated!");
 
-        client.on("session", (accept, reject) => {
+        client.on("session", (accept, _reject) => {
           const session = accept();
-          session.once("exec", (accept, reject, info) => {
-            console.log("Client wants to execute: " + inspect(info.command));
+          session.once("exec", (accept, _reject, info) => {
+            console.log(`Client wants to execute: ${inspect(info.command)}`);
             const stream = accept();
             stream.stderr.write("Oh no, the dreaded errors!\n");
             stream.write("Just kidding about the errors!\n");
@@ -79,6 +37,11 @@ new Server(
         console.log("Client disconnected");
       });
   },
-).listen(0, "127.0.0.1", function () {
-  console.log("Listening on port " + this.address().port);
+).listen(0, "127.0.0.1", function (this: ServerType) {
+  const addr = this.address();
+  if (addr && typeof addr !== "string") {
+    console.log(`Listening on port ${addr.port}`);
+  } else {
+    console.log("Listening");
+  }
 });
