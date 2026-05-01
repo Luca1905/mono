@@ -7,7 +7,7 @@ import { ArticlePanel } from "./components/article-panel";
 import { SearchBar } from "./components/search-bar";
 import { TopicArtPanel } from "./components/topic-art-panel";
 
-type focusableElement = {};
+// type focusableElement = {};
 
 const PREDEFINED_WORDS = [
   "Balance",

@@ -1,38 +1,23 @@
 {
   "name": "mono",
-  "module": "src/index.tsx",
-  "description": "A TUI encyclopedia where every word is a link.",
-  "type": "module",
+  "description": "A TUI encyclopedia via SSH where every word is a link.",
+  "module": "index.ts",
   "private": true,
+  "workspaces": ["packages/*"],
   "scripts": {
-    "check": "biome check .",
-    "dev:tui": "bun run --watch src/mono",
-    "dev:server": "bun run --watch src/server",
-    "check:unsafe": "biome check --write --unsafe .",
-    "check:write": "biome check --write .",
-    "prepare": "husky",
-    "test": "vitest",
-    "typecheck": "tsc --noEmit"
+    "dev:tui": "bun --cwd ./packages/tui run dev",
+    "build:tui": "bun --cwd ./packages/tui run build",
+    "typecheck:tui": "bun --cwd ./packages/tui run typecheck",
+    "dev:sshd": "go run ./cmd/sshd",
+    "build:sshd": "go build -o ./bin/sshd ./cmd/sshd",
+    "build": "bun run build:tui && bun run build:sshd",
+    "clean": "rm -rf ./bin ./packages/tui/dist",
+    "ci": "bun run build && bun run typecheck:tui && bun --cwd ./packages/tui run test"
   },
   "devDependencies": {
-    "@biomejs/biome": "2.4.12",
-    "@types/bun": "latest",
-    "concurrently": "9.2.1",
-    "husky": "^9.1.7",
-    "lint-staged": "16.4.0",
-    "vitest": "^4.1.4"
+    "@types/bun": "latest"
   },
   "peerDependencies": {
     "typescript": "^5"
-  },
-  "dependencies": {
-    "@ai-sdk/google": "^3.0.64",
-    "@opentui/core": "^0.1.100",
-    "@opentui/react": "^0.1.100",
-    "@types/ssh2": "^1.15.5",
-    "opentui-spinner": "^0.0.6",
-    "react": "^19.2.5",
-    "ssh2": "^1.17.0",
-    "zod": "^4.3.6"
   }
 }
