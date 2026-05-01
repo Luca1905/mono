@@ -7,7 +7,7 @@
     "check:unsafe": "biome check --write --unsafe .",
     "check:write": "biome check --write .",
     "ci": "concurrently \"biome check --no-errors-on-unmatched --files-ignore-unknown=true --colors=off\" \"bun run typecheck\"",
-    "dev": "bun --hot ./src/index.tsx",
+    "dev": "bun --watch ./src/index.tsx",
     "prepare": "husky",
     "test": "vitest",
     "typecheck": "tsc --noEmit"
