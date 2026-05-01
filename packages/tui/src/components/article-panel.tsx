@@ -1,3 +1,4 @@
+import { splitArticleIntoWords } from "@mono/utils/words";
 import { TextAttributes } from "@opentui/core";
 import { randomUUIDv7 } from "bun";
 import { BlinkingBox } from "./blinking-box";
@@ -12,20 +13,18 @@ type ArticlePanelProps = {
   topic: string;
 };
 
-const WORD_TOKEN_REGEX = /\S+\s*/g;
-
 function renderSelectableWords(article: string, selectedWordIndex: number) {
   console.log(selectedWordIndex);
-  const words = Array.from(
-    article.matchAll(WORD_TOKEN_REGEX),
-    (match) => match[0],
-  );
+  const words = splitArticleIntoWords(article);
 
   return words.map((word, index) => {
     const idx =
       selectedWordIndex < 0
         ? words.length + selectedWordIndex
         : selectedWordIndex;
+    const tokenText = word.replace(/\s+$/, "");
+    const hasTrailingSpace = /\s$/.test(word);
+
     return idx % words.length === index ? (
       <>
         <text
@@ -34,11 +33,13 @@ function renderSelectableWords(article: string, selectedWordIndex: number) {
           bg="#cccccc"
           attributes={TextAttributes.UNDERLINE}
         >
-          {word.slice(0, -1)}
+          {tokenText}
         </text>
-        <text key={randomUUIDv7()} fg="#000000">
-          {" "}
-        </text>
+        {hasTrailingSpace ? (
+          <text key={randomUUIDv7()} fg="#000000">
+            {" "}
+          </text>
+        ) : null}
       </>
     ) : (
       <text key={randomUUIDv7()} fg="#000000">

@@ -6,6 +6,7 @@ import { renderer } from ".";
 import { ArticlePanel } from "./components/article-panel";
 import { SearchBar } from "./components/search-bar";
 import { TopicArtPanel } from "./components/topic-art-panel";
+import { splitArticleIntoWords } from "./utils/words";
 
 // type focusableElement = {};
 
@@ -159,8 +160,8 @@ export default function App() {
   const [asciiArt, setAsciiArt] = useState(FALLBACK_ASCII_ART);
   const [input, setInput] = useState("");
   const [selectedWordIndex, setSelectedWordIndex] = useState<number>(0);
-  const articleRef = useRef(article);
   const selectedWordIndexRef = useRef(selectedWordIndex);
+  const articleRef = useRef(article);
 
   const [isArticleLoading, setIsArticleLoading] = useState(false);
   const [isArticleStreaming, setIsArticleStreaming] = useState(false);
@@ -209,10 +210,7 @@ export default function App() {
       }
 
       if (key.name === "enter" || key.name === "return") {
-        const words = Array.from(
-          articleRef.current.matchAll(/\S+\s*/g),
-          (match) => match[0],
-        );
+        const words = splitArticleIntoWords(articleRef.current);
         if (words.length === 0) {
           return;
         }
@@ -295,6 +293,7 @@ export default function App() {
       if (isMounted.current && requestId === latestRequestId.current) {
         setIsArticleLoading(false);
         setIsAsciiArtLoading(false);
+        setSelectedWordIndex(0);
       }
     }
   };
