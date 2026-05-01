@@ -1,23 +1,25 @@
 {
-  "name": "mono",
-  "description": "A TUI encyclopedia via SSH where every word is a link.",
-  "module": "index.ts",
-  "private": true,
-  "workspaces": ["packages/*"],
-  "scripts": {
-    "dev:tui": "bun --cwd ./packages/tui run dev",
-    "build:tui": "bun --cwd ./packages/tui run build",
-    "typecheck:tui": "bun --cwd ./packages/tui run typecheck",
-    "dev:sshd": "go run ./cmd/sshd",
-    "build:sshd": "go build -o ./bin/sshd ./cmd/sshd",
-    "build": "bun run build:tui && bun run build:sshd",
-    "clean": "rm -rf ./bin ./packages/tui/dist",
-    "ci": "bun run build && bun run typecheck:tui && bun --cwd ./packages/tui run test"
-  },
-  "devDependencies": {
-    "@types/bun": "latest"
-  },
-  "peerDependencies": {
-    "typescript": "^5"
-  }
+	"name": "mono",
+	"description": "A TUI encyclopedia via SSH where every word is a link.",
+	"private": true,
+	"workspaces": [
+		"packages/*"
+	],
+	"scripts": {
+		"dev:tui": "bun --cwd ./packages/tui run dev",
+		"build:tui": "bun --cwd ./packages/tui run build",
+		"typecheck:tui": "bun --cwd ./packages/tui run typecheck",
+		"dev:sshd": "air -c .air.toml",
+		"build:sshd": "go build -o ./bin/sshd ./cmd/sshd",
+		"build": "bun run build:tui && bun run build:sshd",
+		"clean": "rm -rf ./bin ./packages/tui/dist",
+		"ci": "bun run build && bun run typecheck:tui && bun --cwd ./packages/tui run test",
+		"ssh": "ssh localhost -p 23234"
+	},
+	"devDependencies": {
+		"@types/bun": "latest"
+	},
+	"peerDependencies": {
+		"typescript": "^5"
+	}
 }
