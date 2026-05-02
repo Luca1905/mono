@@ -4,14 +4,17 @@ import (
 	"context"
 	"fmt"
 	"io"
-	"os"
 	"os/exec"
 
 	"github.com/charmbracelet/ssh"
 	"github.com/creack/pty"
 )
 
-func Middleware(tuiEntry string) func(ssh.Handler) ssh.Handler {
+type EnvConfig struct {
+	AIGatewayAPIKey string
+}
+
+func Middleware(tuiEntry string, cfg EnvConfig) func(ssh.Handler) ssh.Handler {
 	return func(next ssh.Handler) ssh.Handler {
 		return func(s ssh.Session) {
 			ptyReq, winCh, ok := s.Pty()
@@ -25,8 +28,8 @@ func Middleware(tuiEntry string) func(ssh.Handler) ssh.Handler {
 			defer cancel()
 
 			cmd := exec.CommandContext(ctx, tuiEntry)
-			cmd.Env = append(
-				os.Environ(),
+			cmd.Env = []string{
+				"AI_GATEWAY_API_KEY=" + cfg.AIGatewayAPIKey,
 				"TERM="+ptyReq.Term,
 				fmt.Sprintf("COLUMNS=%d",
 					ptyReq.Window.Width),
@@ -34,7 +37,7 @@ func Middleware(tuiEntry string) func(ssh.Handler) ssh.Handler {
 					ptyReq.Window.Height),
 				"SSH_USER="+s.User(),
 				"SSH_REMOTE_ADDR="+s.RemoteAddr().String(),
-			)
+			}
 
 			ptmx, err := pty.StartWithSize(cmd, &pty.Winsize{
 				Cols: uint16(ptyReq.Window.Width),

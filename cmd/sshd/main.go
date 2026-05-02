@@ -24,6 +24,12 @@ const (
 )
 
 func main() {
+	aiGatewayAPIKey := os.Getenv("AI_GATEWAY_API_KEY")
+	if aiGatewayAPIKey == "" {
+		log.Error("Missing required environment variable", "name", "AI_GATEWAY_API_KEY")
+		os.Exit(1)
+	}
+
 	srv, err := wish.NewServer(
 		wish.WithAddress(net.JoinHostPort(host, port)),
 		wish.WithHostKeyPath(".ssh/id_ed25519"),
@@ -33,7 +39,9 @@ func main() {
 		// Middlewares do something on a ssh.Session, and then call the next
 		// middleware in the stack.
 		wish.WithMiddleware(
-			sshbridge.Middleware(tuiEntry),
+			sshbridge.Middleware(tuiEntry, sshbridge.EnvConfig{
+				AIGatewayAPIKey: aiGatewayAPIKey,
+			}),
 			// The last item in the chain is the first to be called.
 			logging.Middleware(),
 		),
