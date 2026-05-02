@@ -93,9 +93,10 @@ for (const item of allTargets) {
     format: "esm",
     minify: true,
     splitting: true,
+    env: "inline",
     compile: {
       autoloadBunfig: false,
-      autoloadDotenv: true,
+      autoloadDotenv: false,
       autoloadTsconfig: true,
       autoloadPackageJson: true,
       // biome-ignore lint/suspicious/noExplicitAny: string is actually target type
