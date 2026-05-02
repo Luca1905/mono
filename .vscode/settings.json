@@ -1,4 +1,4 @@
 {
   "js/ts.tsdk.path": "node_modules/typescript/lib",
-  "biome.configurationPath": "packages/tui/biome.json"
+  "biome.configurationPath": "packages/tui/biome.json",
 }
