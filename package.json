@@ -9,7 +9,7 @@
 		"dev:tui": "cd ./packages/tui && bun run dev",
 		"build:tui": "cd ./packages/tui && bun run build",
 		"typecheck:tui": "cd ./packages/tui && bun run typecheck",
-		"dev:sshd": "air -c .air.toml",
+		"dev:sshd": "sh ./scripts/dev-sshd.sh",
 		"build:sshd": "go build -o ./bin/sshd ./cmd/sshd",
 		"build": "bun run build:tui && bun run build:sshd",
 		"clean": "rm -rf ./bin ./packages/tui/dist",
