@@ -18,13 +18,12 @@ import (
 )
 
 const (
-	host = "localhost"
-	port = "23234"
+	host     = "localhost"
+	port     = "23234"
+	tuiEntry = "packages/tui/dist/@mono/tui-darwin-arm64/bin/mono"
 )
 
 func main() {
-	tuiEntry := "./packages/tui/dist/index.js"
-
 	srv, err := wish.NewServer(
 		wish.WithAddress(net.JoinHostPort(host, port)),
 		wish.WithHostKeyPath(".ssh/id_ed25519"),

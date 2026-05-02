@@ -24,7 +24,7 @@ func Middleware(tuiEntry string) func(ssh.Handler) ssh.Handler {
 			ctx, cancel := context.WithCancel(s.Context())
 			defer cancel()
 
-			cmd := exec.CommandContext(ctx, "bun", "run", tuiEntry)
+			cmd := exec.CommandContext(ctx, tuiEntry)
 			cmd.Env = append(
 				os.Environ(),
 				"TERM="+ptyReq.Term,
