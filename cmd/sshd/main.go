@@ -13,15 +13,9 @@ import (
 	"charm.land/wish/v2"
 	"charm.land/wish/v2/logging"
 	"github.com/charmbracelet/ssh"
+	"github.com/joho/godotenv"
 
 	"github.com/Luca1905/mono/internal/sshbridge"
-)
-
-var (
-	host            = getEnv("HOST")
-	port            = getEnv("PORT")
-	tuiEntry        = getEnv("TUI_ENTRY")
-	aiGatewayAPIKey = getEnv("AI_GATEWAY_API_KEY")
 )
 
 func getEnv(key string) string {
@@ -34,6 +28,18 @@ func getEnv(key string) string {
 }
 
 func main() {
+	err := godotenv.Load()
+	if err != nil {
+		log.Fatal("Error loading .env file")
+	}
+
+	var (
+		host            = getEnv("HOST")
+		port            = getEnv("PORT")
+		tuiEntry        = getEnv("TUI_ENTRY")
+		aiGatewayAPIKey = getEnv("AI_GATEWAY_API_KEY")
+	)
+
 	srv, err := wish.NewServer(
 		wish.WithAddress(net.JoinHostPort(host, port)),
 		wish.WithHostKeyPath(".ssh/id_ed25519"),
