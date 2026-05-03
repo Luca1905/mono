@@ -53,7 +53,7 @@ func main() {
 				AIGatewayAPIKey: aiGatewayAPIKey,
 			}),
 			// The last item in the chain is the first to be called.
-			logging.Middleware(),
+			logging.StructuredMiddleware(),
 		),
 	)
 	if err != nil {
