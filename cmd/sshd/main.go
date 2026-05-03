@@ -17,19 +17,23 @@ import (
 	"github.com/Luca1905/mono/internal/sshbridge"
 )
 
-const (
-	host     = "localhost"
-	port     = "23234"
-	tuiEntry = "packages/tui/dist/@mono/tui-darwin-arm64/bin/mono"
+var (
+	host            = getEnv("HOST")
+	port            = getEnv("PORT")
+	tuiEntry        = getEnv("TUI_ENTRY")
+	aiGatewayAPIKey = getEnv("AI_GATEWAY_API_KEY")
 )
 
-func main() {
-	aiGatewayAPIKey := os.Getenv("AI_GATEWAY_API_KEY")
-	if aiGatewayAPIKey == "" {
-		log.Error("Missing required environment variable", "name", "AI_GATEWAY_API_KEY")
-		os.Exit(1)
+func getEnv(key string) string {
+	if value, ok := os.LookupEnv(key); ok && value != "" {
+		return value
 	}
+	log.Error("Environment variable not set", "name", key)
+	os.Exit(1)
+	return ""
+}
 
+func main() {
 	srv, err := wish.NewServer(
 		wish.WithAddress(net.JoinHostPort(host, port)),
 		wish.WithHostKeyPath(".ssh/id_ed25519"),
