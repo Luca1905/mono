@@ -7,7 +7,6 @@ import (
 	"os/exec"
 
 	"github.com/charmbracelet/ssh"
-	"github.com/creack/pty"
 )
 
 type EnvConfig struct {
@@ -17,7 +16,7 @@ type EnvConfig struct {
 func Middleware(tuiEntry string, cfg EnvConfig) func(ssh.Handler) ssh.Handler {
 	return func(next ssh.Handler) ssh.Handler {
 		return func(s ssh.Session) {
-			ptyReq, winCh, ok := s.Pty()
+			pty, winCh, ok := s.Pty()
 			if !ok {
 				_, _ = io.WriteString(s, "this app requires a PTY\n")
 				s.Exit(1)
@@ -30,42 +29,33 @@ func Middleware(tuiEntry string, cfg EnvConfig) func(ssh.Handler) ssh.Handler {
 			cmd := exec.CommandContext(ctx, tuiEntry)
 			cmd.Env = []string{
 				"AI_GATEWAY_API_KEY=" + cfg.AIGatewayAPIKey,
-				"TERM="+ptyReq.Term,
+				"TERM=" + pty.Term,
 				fmt.Sprintf("COLUMNS=%d",
-					ptyReq.Window.Width),
+					pty.Window.Width),
 				fmt.Sprintf("LINES=%d",
-					ptyReq.Window.Height),
-				"SSH_USER="+s.User(),
-				"SSH_REMOTE_ADDR="+s.RemoteAddr().String(),
+					pty.Window.Height),
+				"SSH_USER=" + s.User(),
+				"SSH_REMOTE_ADDR=" + s.RemoteAddr().String(),
 			}
 
-			ptmx, err := pty.StartWithSize(cmd, &pty.Winsize{
-				Cols: uint16(ptyReq.Window.Width),
-				Rows: uint16(ptyReq.Window.Height),
-			})
+			err := pty.Start(cmd)
 			if err != nil {
 				_, _ = io.WriteString(s, "failed to start command\n")
 				s.Exit(1)
 				return
 			}
-			defer func() { _ = ptmx.Close() }()
+			defer func() { _ = pty.Close() }()
 
 			go func() {
 				for win := range winCh {
-					_ = pty.Setsize(ptmx, &pty.Winsize{
-						Cols: uint16(win.Width),
-						Rows: uint16(win.Height),
-					})
+					_ = pty.Resize(
+						win.Width,
+						win.Height,
+					)
 				}
 			}()
-
-			go func() {
-				_, _ = io.Copy(ptmx, s) // stdin
-				_ = ptmx.Close()
-			}()
-
-			io.Copy(s, ptmx) // stdout
 			cmd.Wait()
+			next(s)
 		}
 	}
 }
