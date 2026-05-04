@@ -11,6 +11,7 @@ import (
 
 	"charm.land/log/v2"
 	"charm.land/wish/v2"
+	"charm.land/wish/v2/activeterm"
 	"charm.land/wish/v2/logging"
 	"github.com/charmbracelet/ssh"
 	"github.com/joho/godotenv"
@@ -52,6 +53,7 @@ func main() {
 			sshbridge.Middleware(tuiEntry, sshbridge.EnvConfig{
 				AIGatewayAPIKey: aiGatewayAPIKey,
 			}),
+			activeterm.Middleware(),
 			// The last item in the chain is the first to be called.
 			logging.StructuredMiddleware(),
 		),
