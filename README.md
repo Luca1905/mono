@@ -1,5 +1,7 @@
 # MONO
 
+<img width="1200" height="497" alt="download" src="https://github.com/user-attachments/assets/f37de520-ee4e-4271-907e-dbc52661106e" />
+
 A TUI encyclopedia via SSH where every word is a link.
 
 Inspired by [Wikipedia](https://www.wikipedia.org/) and also the [Library of Babel](https://libraryofbabel.info/)
