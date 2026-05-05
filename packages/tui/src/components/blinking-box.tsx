@@ -3,7 +3,7 @@ import { type ReactNode, useEffect, useRef, useState } from "react";
 
 type BlinkingBoxProps = {
   children?: ReactNode;
-  focused: boolean;
+  active: boolean;
   baseIntensity?: number;
   peakIntensity?: number;
   pulseDurationMs?: number;
@@ -16,9 +16,9 @@ function gray(intensity: number) {
 
 export function BlinkingBox({
   children,
-  focused,
-  baseIntensity = 0,
-  peakIntensity = 255,
+  active,
+  baseIntensity = 255,
+  peakIntensity = 0,
   pulseDurationMs = 500,
   ...boxProps
 }: BlinkingBoxProps) {
@@ -28,7 +28,7 @@ export function BlinkingBox({
   useEffect(() => {
     pulseRef.current = "base";
 
-    if (!focused) {
+    if (!active) {
       setBorderColor(gray(baseIntensity));
       return;
     }
@@ -49,10 +49,10 @@ export function BlinkingBox({
     return () => {
       clearInterval(interval);
     };
-  }, [baseIntensity, focused, peakIntensity, pulseDurationMs]);
+  }, [baseIntensity, active, peakIntensity, pulseDurationMs]);
 
   return (
-    <box {...boxProps} focused={focused} focusedBorderColor={borderColor}>
+    <box {...boxProps} border borderColor={borderColor}>
       {children}
     </box>
   );

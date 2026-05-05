@@ -1,28 +1,20 @@
-import { BlinkingBox } from "./blinking-box";
-
 type TopicArtPanelProps = {
   asciiArt: string;
   isAsciiArtLoading: boolean;
   isLoading: boolean;
-  focused: boolean;
 };
 
 export function TopicArtPanel({
   asciiArt,
   isAsciiArtLoading,
   isLoading,
-  focused,
 }: TopicArtPanelProps) {
   return (
-    <BlinkingBox
+    <box
       flexShrink={0}
       alignItems="center"
       justifyContent="center"
       flexDirection="row"
-      focused={focused}
-      pulseDurationMs={500}
-      baseIntensity={0}
-      peakIntensity={255}
     >
       {isAsciiArtLoading && (
         <box
@@ -32,6 +24,7 @@ export function TopicArtPanel({
           flexDirection="row"
           alignItems="center"
           padding={1}
+          maxWidth={"50%"}
         >
           <spinner name="bouncingBall" color="grey" />
         </box>
@@ -39,6 +32,6 @@ export function TopicArtPanel({
       <text zIndex={0} fg={isLoading ? "#ffffff" : "#888888"}>
         {asciiArt}
       </text>
-    </BlinkingBox>
+    </box>
   );
 }

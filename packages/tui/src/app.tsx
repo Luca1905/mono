@@ -323,7 +323,6 @@ export default function App() {
         <SearchBar
           input={input}
           searchFocused={focused === "input"}
-          randomFocused={false}
           onChange={setInput}
           onClear={() => setInput("")}
           onSubmit={(submission) => {
@@ -344,8 +343,6 @@ export default function App() {
             asciiArt={asciiArt}
             isAsciiArtLoading={isAsciiArtLoading}
             isLoading={isLoading}
-            // hard coded value
-            focused={false}
           />
           <ArticlePanel
             article={article}

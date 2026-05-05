@@ -63,11 +63,10 @@ export function ArticlePanel({
       flexGrow={1}
       minWidth="30%"
       maxWidth="50%"
-      focusable
-      focused={focused}
+      active={focused}
       pulseDurationMs={500}
-      baseIntensity={0}
-      peakIntensity={255}
+      baseIntensity={255}
+      peakIntensity={0}
     >
       <box
         flexDirection="column"
