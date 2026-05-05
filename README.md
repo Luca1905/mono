@@ -17,6 +17,20 @@ SSH Server
 - Uses the amazing [wish](https://github.com/charmbracelet/wish) by charm to serve the TUI over SSH. 
 - Written in Go
 
+## Quickstart
+Connect to a publicly served instance:
+
+```bash
+ssh mono.lucawang.me -p 23234
+```
+
+> [!IMPORTANT]
+> In case you haven't used SSh before:
+>
+> Generate one with:  
+> `ssh-keygen -t ed25519 -N ""`  
+> (Press ENTER at all prompts.)
+
 ## Usage
 - Shift + R: Random word
 - Input bar: Click via mouse, then type new subject, enter to submit
