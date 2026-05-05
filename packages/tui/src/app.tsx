@@ -176,6 +176,11 @@ export default function App() {
       renderer.console.toggle();
     }
 
+    // Or with a modifier
+    if (key.ctrl && key.name === "l") {
+      renderer.console.toggle();
+    }
+
     if (key.name === "escape") {
       // switch (focusedRef.current) {
       switch (focused) {
@@ -188,11 +193,6 @@ export default function App() {
         default:
           throw new Error("Impossible state;");
       }
-    }
-
-    // Or with a modifier
-    if (key.ctrl && key.name === "l") {
-      renderer.console.toggle();
     }
 
     if (key.shift && key.name === "r") {
@@ -323,8 +323,6 @@ export default function App() {
         <SearchBar
           input={input}
           searchFocused={focused === "input"}
-          onChange={setInput}
-          onClear={() => setInput("")}
           onSubmit={(submission) => {
             if (typeof submission === "string" && focused === "input") {
               void onSubmit(submission);

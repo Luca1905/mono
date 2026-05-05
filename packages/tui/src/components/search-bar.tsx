@@ -3,18 +3,10 @@ import { BlinkingBox } from "./blinking-box";
 type SearchBarProps = {
   input: string;
   searchFocused: boolean;
-  onChange: (value: string) => void;
-  onClear: () => void;
   onSubmit: (submission: string) => void;
 };
 
-export function SearchBar({
-  input,
-  searchFocused,
-  onChange,
-  onClear,
-  onSubmit,
-}: SearchBarProps) {
+export function SearchBar({ input, searchFocused, onSubmit }: SearchBarProps) {
   return (
     <box flexDirection="row" alignItems="center" justifyContent="space-between">
       <BlinkingBox
@@ -28,12 +20,6 @@ export function SearchBar({
           value={input}
           placeholder="Start typing to search"
           textColor="#000000"
-          onKeyDown={(key) => {
-            if (key.name === "escape") {
-              onClear();
-            }
-          }}
-          onChange={onChange}
           onSubmit={(submission) => {
             if (typeof submission === "string") {
               onSubmit(submission);
