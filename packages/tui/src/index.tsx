@@ -5,6 +5,7 @@ import App from "./app";
 export const renderer = await createCliRenderer({
   openConsoleOnError: true,
   backgroundColor: "#ffffff",
+  targetFps: 60,
   consoleOptions: {
     position: ConsolePosition.BOTTOM, // Position on screen
     sizePercent: 30, // Size as percentage of terminal
