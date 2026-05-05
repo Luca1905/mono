@@ -14,7 +14,6 @@ type ArticlePanelProps = {
 };
 
 function renderSelectableWords(article: string, selectedWordIndex: number) {
-  console.log(selectedWordIndex);
   const words = splitArticleIntoWords(article);
 
   return words.map((word, index) => {

@@ -1,14 +1,15 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useRef, useState } from "react";
 import z from "zod";
 import { MODEL, streamArticleForTopic, streamAsciiArtForTopic } from "./ai";
 import "opentui-spinner/react";
+import { useKeyboard } from "@opentui/react";
 import { renderer } from ".";
 import { ArticlePanel } from "./components/article-panel";
 import { SearchBar } from "./components/search-bar";
 import { TopicArtPanel } from "./components/topic-art-panel";
 import { splitArticleIntoWords } from "./utils/words";
 
-// type focusableElement = {};
+type focusableElement = "input" | "article";
 
 const PREDEFINED_WORDS = [
   "Balance",
@@ -154,14 +155,12 @@ const FALLBACK_ARTICLE =
 const FALLBACK_ASCII_ART = `┌─────────────────────────────┐\n│█┌─────────────────────────┐█│\n│█│▓┌─────────────────────┐▓│█│\n│█│▓│▒┌─────────────────┐▒│▓│█│\n│█│▓│▒│░┌─────────────┐░│▒│▓│█│\n│█│▓│▒│░│ ┌─────────┐ │░│▒│▓│█│\n│█│▓│▒│░│ │ ┌─────┐ │ │░│▒│▓│█│\n│█│▓│▒│░│ │ │ ┌─■ │ │ │░│▒│▓│█│\n│█│▓│▒│░│ │ │ └───┘ │ │░│▒│▓│█│\n│█│▓│▒│░│ │ └───────┘ │░│▒│▓│█│\n│█│▓│▒│░│ └───────────┘░│▒│▓│█│\n│█│▓│▒│░└───────────────┘▒│▓│█│\n│█│▓│▒└───────────────────┘▓│█│\n│█│▓└───────────────────────┘█│\n■█└───────────────────────────┘`;
 
 export default function App() {
-  const [focused, setFocused] = useState(false);
+  const [focused, setFocused] = useState<focusableElement>("input");
   const [article, setArticle] = useState(FALLBACK_ARTICLE);
   const [topic, setTopic] = useState("mono");
   const [asciiArt, setAsciiArt] = useState(FALLBACK_ASCII_ART);
   const [input, setInput] = useState("");
   const [selectedWordIndex, setSelectedWordIndex] = useState<number>(0);
-  const selectedWordIndexRef = useRef(selectedWordIndex);
-  const articleRef = useRef(article);
 
   const [isArticleLoading, setIsArticleLoading] = useState(false);
   const [isArticleStreaming, setIsArticleStreaming] = useState(false);
@@ -171,64 +170,63 @@ export default function App() {
   const latestRequestId = useRef(0);
   const isMounted = useRef(true);
 
-  useEffect(() => {
-    articleRef.current = article;
-  }, [article]);
+  useKeyboard((key) => {
+    // Toggle with backtick key
+    if (key.name === "`") {
+      renderer.console.toggle();
+    }
 
-  useEffect(() => {
-    selectedWordIndexRef.current = selectedWordIndex;
-  }, [selectedWordIndex]);
+    if (key.name === "escape") {
+      // switch (focusedRef.current) {
+      switch (focused) {
+        case "article":
+          setFocused("input");
+          break;
+        case "input":
+          setFocused("article");
+          break;
+        default:
+          throw new Error("Impossible state;");
+      }
+    }
 
-  useEffect(() => {
-    renderer.keyInput.on("keypress", (key) => {
-      // Toggle with backtick key
-      if (key.name === "`") {
-        renderer.console.toggle();
+    // Or with a modifier
+    if (key.ctrl && key.name === "l") {
+      renderer.console.toggle();
+    }
+
+    if (key.shift && key.name === "r") {
+      handleRandomTopic();
+    }
+
+    if (key.shift && key.name === "tab") {
+      setSelectedWordIndex((prev) => {
+        return prev - 1;
+      });
+    } else if (key.name === "tab") {
+      setSelectedWordIndex((prev) => {
+        return prev + 1;
+      });
+    }
+
+    if (
+      (key.name === "enter" || key.name === "return") &&
+      focused === "article"
+    ) {
+      const words = splitArticleIntoWords(article);
+      if (words.length === 0) {
+        return;
       }
 
-      if (key.name === "escape") {
-        setFocused((prev) => !prev);
+      const normalizedSelectedWordIndex =
+        ((selectedWordIndex % words.length) + words.length) % words.length;
+      const selectedWord = words[normalizedSelectedWordIndex]?.trim();
+
+      if (selectedWord) {
+        void onSubmit(selectedWord);
       }
-
-      // Or with a modifier
-      if (key.ctrl && key.name === "l") {
-        renderer.console.toggle();
-      }
-
-      if (key.shift && key.name === "r") {
-        handleRandomTopic();
-      }
-
-      if (key.shift && key.name === "tab") {
-        setSelectedWordIndex((prev) => {
-          return prev - 1;
-        });
-      } else if (key.name === "tab") {
-        setSelectedWordIndex((prev) => {
-          return prev + 1;
-        });
-      }
-
-      if (key.name === "enter" || key.name === "return") {
-        const words = splitArticleIntoWords(articleRef.current);
-        if (words.length === 0) {
-          return;
-        }
-
-        const normalizedSelectedWordIndex =
-          ((selectedWordIndexRef.current % words.length) + words.length) %
-          words.length;
-        const selectedWord = words[normalizedSelectedWordIndex]?.trim();
-
-        if (selectedWord) {
-          void onSubmit(selectedWord);
-        }
-      }
-    });
-    return () => {
-      isMounted.current = false;
-    };
-  }, []);
+    }
+  });
 
   const onSubmit = async (submission: string) => {
     setIsArticleLoading(true);
@@ -324,12 +322,12 @@ export default function App() {
       <box flexDirection="column" gap={2} flexGrow={1}>
         <SearchBar
           input={input}
-          searchFocused={focused}
-          randomFocused={true}
+          searchFocused={focused === "input"}
+          randomFocused={false}
           onChange={setInput}
           onClear={() => setInput("")}
           onSubmit={(submission) => {
-            if (typeof submission === "string") {
+            if (typeof submission === "string" && focused === "input") {
               void onSubmit(submission);
             }
           }}
@@ -356,7 +354,7 @@ export default function App() {
             isArticleStreaming={isArticleStreaming}
             topic={topic}
             selectedWordIndex={selectedWordIndex}
-            focused={!focused}
+            focused={focused === "article"}
           />
         </box>
       </box>

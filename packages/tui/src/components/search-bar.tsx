@@ -47,11 +47,10 @@ export function SearchBar({
               onSubmit(submission);
             }
           }}
-          focused={false}
+          focused={searchFocused}
         />
       </BlinkingBox>
       <BlinkingBox
-        focusable
         focused={randomFocused}
         pulseDurationMs={500}
         baseIntensity={0}
