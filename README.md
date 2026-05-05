@@ -35,6 +35,7 @@ ssh mono.lucawang.me -p 23234
 - Shift + R: Random word
 - Input bar: Click via mouse, then type new subject, enter to submit
 - (Shift) Tab: Navigating the article, enter for new topic
+- Escape: shift focus between article and input bar
 
 ### Prerequisites
 - Bun v1.3.10
