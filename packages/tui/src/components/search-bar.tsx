@@ -1,12 +1,11 @@
 import { BlinkingBox } from "./blinking-box";
 
 type SearchBarProps = {
-  input: string;
   searchFocused: boolean;
   onSubmit: (submission: string) => void;
 };
 
-export function SearchBar({ input, searchFocused, onSubmit }: SearchBarProps) {
+export function SearchBar({ searchFocused, onSubmit }: SearchBarProps) {
   return (
     <box flexDirection="row" alignItems="center" justifyContent="space-between">
       <BlinkingBox
@@ -17,7 +16,6 @@ export function SearchBar({ input, searchFocused, onSubmit }: SearchBarProps) {
         flexGrow={1}
       >
         <input
-          value={input}
           placeholder="Start typing to search"
           textColor="#000000"
           onSubmit={(submission) => {

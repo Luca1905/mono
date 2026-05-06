@@ -32,10 +32,12 @@ ssh mono.lucawang.me -p 23234
 > (Press ENTER at all prompts.)
 
 ## Usage
-- Shift + R: Random word
-- Input bar: Click via mouse, then type new subject, enter to submit
-- (Shift) Tab: Navigating the article, enter for new topic
-- Escape: shift focus between article and input bar
+- **Tab**: Switch focus between input and article
+- **Arrow Keys / Vim keys (hjkl)**: Navigate article
+- **Enter**: Submit selected word
+- **Shift+R**: Random word
+- **Escape**: Clear search (when in input)
+- **` (backtick) / Ctrl+L**: Toggle console
 
 ### Prerequisites
 - Bun v1.3.10

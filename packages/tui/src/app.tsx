@@ -1,4 +1,4 @@
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import z from "zod";
 import { MODEL, streamArticleForTopic, streamAsciiArtForTopic } from "./ai";
 import "opentui-spinner/react";
@@ -9,7 +9,7 @@ import { SearchBar } from "./components/search-bar";
 import { TopicArtPanel } from "./components/topic-art-panel";
 import { splitArticleIntoWords } from "./utils/words";
 
-type focusableElement = "input" | "article";
+type focusableElementId = "input" | "article";
 
 const PREDEFINED_WORDS = [
   "Balance",
@@ -155,7 +155,8 @@ const FALLBACK_ARTICLE =
 const FALLBACK_ASCII_ART = `┌─────────────────────────────┐\n│█┌─────────────────────────┐█│\n│█│▓┌─────────────────────┐▓│█│\n│█│▓│▒┌─────────────────┐▒│▓│█│\n│█│▓│▒│░┌─────────────┐░│▒│▓│█│\n│█│▓│▒│░│ ┌─────────┐ │░│▒│▓│█│\n│█│▓│▒│░│ │ ┌─────┐ │ │░│▒│▓│█│\n│█│▓│▒│░│ │ │ ┌─■ │ │ │░│▒│▓│█│\n│█│▓│▒│░│ │ │ └───┘ │ │░│▒│▓│█│\n│█│▓│▒│░│ │ └───────┘ │░│▒│▓│█│\n│█│▓│▒│░│ └───────────┘░│▒│▓│█│\n│█│▓│▒│░└───────────────┘▒│▓│█│\n│█│▓│▒└───────────────────┘▓│█│\n│█│▓└───────────────────────┘█│\n■█└───────────────────────────┘`;
 
 export default function App() {
-  const [focused, setFocused] = useState<focusableElement>("input");
+  const focusableElements: focusableElementId[] = ["input", "article"];
+  const [focused, setFocused] = useState<focusableElementId>("article");
   const [article, setArticle] = useState(FALLBACK_ARTICLE);
   const [topic, setTopic] = useState("mono");
   const [asciiArt, setAsciiArt] = useState(FALLBACK_ASCII_ART);
@@ -170,61 +171,80 @@ export default function App() {
   const latestRequestId = useRef(0);
   const isMounted = useRef(true);
 
+  useEffect(() => {
+    console.log(input);
+  }, [input]);
+
   useKeyboard((key) => {
-    // Toggle with backtick key
-    if (key.name === "`") {
+    // GLOBAL SHORTCUTS
+    if (key.name === "`" || (key.ctrl && key.name === "l")) {
       renderer.console.toggle();
-    }
-
-    // Or with a modifier
-    if (key.ctrl && key.name === "l") {
-      renderer.console.toggle();
-    }
-
-    if (key.name === "escape") {
-      // switch (focusedRef.current) {
-      switch (focused) {
-        case "article":
-          setFocused("input");
-          break;
-        case "input":
-          setFocused("article");
-          break;
-        default:
-          throw new Error("Impossible state;");
-      }
     }
 
     if (key.shift && key.name === "r") {
       handleRandomTopic();
     }
 
-    if (key.shift && key.name === "tab") {
-      setSelectedWordIndex((prev) => {
-        return prev - 1;
-      });
-    } else if (key.name === "tab") {
-      setSelectedWordIndex((prev) => {
-        return prev + 1;
+    if (key.name === "tab") {
+      setFocused((prev) => {
+        const currentIndex = focusableElements.indexOf(prev);
+        const nextIndex = (currentIndex + 1) % focusableElements.length;
+        const newFocused = focusableElements[nextIndex];
+        if (!newFocused) {
+          return prev;
+        }
+        return newFocused;
       });
     }
 
-    if (
-      (key.name === "enter" || key.name === "return") &&
-      focused === "article"
-    ) {
-      const words = splitArticleIntoWords(article);
-      if (words.length === 0) {
-        return;
-      }
+    switch (focused) {
+      case "input":
+        if (key.name === "escape") {
+          setInput("");
+        }
+        break;
 
-      const normalizedSelectedWordIndex =
-        ((selectedWordIndex % words.length) + words.length) % words.length;
-      const selectedWord = words[normalizedSelectedWordIndex]?.trim();
+      case "article":
+        // navigation
+        if (key.name === "h" || key.name === "left") {
+          setSelectedWordIndex((prev) => {
+            return prev - 1;
+          });
+        }
+        if (key.name === "l" || key.name === "right") {
+          setSelectedWordIndex((prev) => {
+            return prev + 1;
+          });
+        }
+        if (key.name === "j" || key.name === "down") {
+          setSelectedWordIndex((prev) => {
+            return prev + 5;
+          });
+        }
+        if (key.name === "k" || key.name === "up") {
+          setSelectedWordIndex((prev) => {
+            return prev - 5;
+          });
+        }
 
-      if (selectedWord) {
-        void onSubmit(selectedWord);
-      }
+        if (key.name === "enter" || key.name === "return") {
+          const words = splitArticleIntoWords(article);
+          if (words.length === 0) {
+            return;
+          }
+
+          const normalizedSelectedWordIndex =
+            ((selectedWordIndex % words.length) + words.length) % words.length;
+          const selectedWord = words[normalizedSelectedWordIndex]?.trim();
+
+          if (selectedWord) {
+            void onSubmit(selectedWord);
+          }
+        }
+        break;
+
+      default:
+        break;
     }
   });
 
@@ -313,7 +333,7 @@ export default function App() {
       border
       borderColor="#888888"
       bottomTitle={` Made by Luca Wang · Generated by ${MODEL.modelId} `}
-      title=" ESC to toggle focus · Shift + Tab to navigate words "
+      title=" TAB: focus · ARROWS/Vim: navigate · ENTER: submit · Shift+R: random "
       titleAlignment="right"
       justifyContent="center"
       alignItems="center"
@@ -321,11 +341,15 @@ export default function App() {
     >
       <box flexDirection="column" gap={2} flexGrow={1}>
         <SearchBar
-          input={input}
           searchFocused={focused === "input"}
           onSubmit={(submission) => {
-            if (typeof submission === "string" && focused === "input") {
+            if (
+              typeof submission === "string" &&
+              submission.length > 0 &&
+              focused === "input"
+            ) {
               void onSubmit(submission);
+              setFocused("article");
             }
           }}
         />

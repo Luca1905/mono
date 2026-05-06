@@ -1,4 +1,6 @@
 {
   "js/ts.tsdk.path": "node_modules/typescript/lib",
   "biome.configurationPath": "packages/tui/biome.json",
+  "editor.detectIndentation": false,
+  "editor.tabSize": 2
 }
